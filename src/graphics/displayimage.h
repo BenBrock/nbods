@@ -53,8 +53,7 @@ int  get_key      (struct XWin **xwin);
 void handle_key   (int id, struct XWin **xwin);
 int create_key   (char *keyvalue, void *(*function)(void *), void *args,
                    struct XWin **xwin);
-void xwindow_init (unsigned char *pixmap, unsigned char *pixmapmod, 
-                   int width, int height, int depth, struct XWin **xwin);
+void xwindow_init (int width, int height, int depth, struct XWin **xwin);
 void xwindow_del  (struct XWin **xwin);
 
 #endif

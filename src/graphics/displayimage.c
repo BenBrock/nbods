@@ -81,7 +81,7 @@ int create_key(char *keyvalue, void *(*function)(void *),
   return ++((*xwin)->numkeys);
 }
 
-void xwindow_init(unsigned char *pixmap, unsigned char *pixmapmod, int width, int height, int depth, struct XWin **xwin)
+void xwindow_init(int width, int height, int depth, struct XWin **xwin)
 {
   unsigned int black;
   int screen;
@@ -140,15 +140,10 @@ void xwindow_init(unsigned char *pixmap, unsigned char *pixmapmod, int width, in
   // wait until window appears
   do { XNextEvent((*xwin)->dsp, (*xwin)->evt); } while ((*xwin)->evt->type != MapNotify);
   
-  // Now create the ximage and display it
-  (*xwin)->ximage = XCreateImage((*xwin)->dsp, (*xwin)->visual, 24, ZPixmap, 0, 
-                                (char *)pixmap, (unsigned int)width, 
-                                (unsigned int)height, 32, 0);
   (*xwin)->width = width;
   (*xwin)->height = height;
   (*xwin)->depth = depth;
   (*xwin)->numkeys = 0;
-  update_screen(pixmap, xwin);
 
   // Initialize variables used for FPS
   (*xwin)->connectnum = ConnectionNumber((*xwin)->dsp);
