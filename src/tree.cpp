@@ -21,8 +21,8 @@ void QTnode::Print()
     printf("Node %p\n", t);
     printf("Has x-bounds %lf -> %lf\n", t->x.beg, t->x.lim);
     printf("Has y-bounds %lf -> %lf\n", t->y.beg, t->y.lim);
-    printf("Has %d particles.\n", t->particles.size());
-    printf("Has %d children.\n", t->children.size());
+    printf("Has %lu particles.\n", t->particles.size());
+    printf("Has %lu children.\n", t->children.size());
     printf("Has parent %p\n", t->parent);
 
     for (i = 0; i < t->children.size(); i++) {
@@ -35,36 +35,67 @@ void QTnode::Print()
   }
 }
 
+/* Always insert into root (first).
+   If you insert into another node,
+   you're a dick. */
 bool QTnode::insert(Particle p)
 {
   int i;
+  bool inserted;
+
+  inserted = false;
 
   if (in_bounds(p)) {
-    /* We are at a leaf node. Just insert. */
     if (children.size() == 0) {
+      /* If we are at a leaf node. Just insert. */
       particles.push_back(p);
-      return true;
+      inserted = true;
     } else {
+      /* Otherwise, see if you can store in a child. */
       for (i = 0; i < children.size(); i++) {
         if (children[i]->in_bounds(p)) {
-          return children[i]->insert(p);
+          inserted = children[i]->insert(p);
+          break;
         }
       }
-      /* Could not insert where it should fit. */
-      return false;
     }
   } else {
-    if (parent) {
-      return parent->insert(p);
-    } else {
-      return false;
-    }
+    /* You are at a singularity. YOLO. */
+    return false;
   }
+
+  /* If you inserted a particle into your child,
+     then re-calculate your number of particles. */
+  if (inserted) {
+    recalc_num_particles();
+  }
+
+  return inserted;
 }
 
 bool QTnode::in_bounds(Particle p)
 {
   return (p.pos.x > x.beg && p.pos.x < x.lim) && (p.pos.y > y.beg && p.pos.y < y.lim);
+}
+
+int QTnode::get_num_particles()
+{
+  return num_particles;
+}
+
+void QTnode::recalc_num_particles()
+{
+  int i;
+
+  if (children.empty()) {
+    num_particles = particles.size();
+  } else {
+    num_particles = 0;
+
+    for (i = 0; i < children.size(); i++) {
+      num_particles += children[i]->get_num_particles();
+    }
+  }
 }
 
 QTnode::QTnode(QTnode *parent, double xbeg, double ybeg, double step)
