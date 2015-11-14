@@ -1,26 +1,19 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
-#include "vec.h"
+#include "vec.hpp"
+#include "phys.hpp"
 
 /* gravitational constant */
 #define G 1.0
 
-
-typedef struct {
-  f2 pos;
-  f2 vel;
-} Particle;
-
-
 Particle *particles;
 int N;
-
 
 void phys_init(int n)
 {
   N = n;
-  particles = calloc(N, sizeof(Particle));
+  particles = (Particle *)calloc(N, sizeof(Particle));
   for (int i = 0; i < N; i++) {
     particles[i].pos.x = (double) rand() / RAND_MAX;
     particles[i].pos.y = (double) rand() / RAND_MAX;

@@ -1,10 +1,6 @@
 #include "phys.hpp"
 #include "graphics/displayimage.hpp"
 
-#define N 10000
-
-Particle particles[N];
-
 int main(int argc, char **argv)
 {
   cairo_surface_t *surface;
@@ -12,6 +8,7 @@ int main(int argc, char **argv)
   int x, y, i,
       width, height, depth,
       screen, pressed_key;
+  double r, b;
 
   /* Set window size */
   width = 1024;
@@ -28,6 +25,9 @@ int main(int argc, char **argv)
   context = cairo_create(surface);
   cairo_scale(context, width, height);
 
+  /* Initialize the physics web-scale cloud */
+  phys_init(5000);
+
   while(!((*xwin)->should_close)) {
     
     /* Wait on the input (also sync up to disable flickering) */
@@ -39,32 +39,12 @@ int main(int argc, char **argv)
     cairo_set_source_rgb(context, 0.0, 0.0, 0.0);
     cairo_paint(context);
 
-    /* Fill the array of particles */
-    printf("Filling array\n");
-    fflush(stdout);
-    srand((unsigned int)time(NULL));
-    for(i = 0; i < N; ++i) {
-      particles[i].pos.x = (double)rand() / (double)RAND_MAX;
-      particles[i].pos.y = (double)rand() / (double)RAND_MAX;
-    }
-    printf("Finished filling array\n");
-    fflush(stdout);
-
     /* Draw the particles */
-    cairo_set_source_rgba(context, 1.0, 1.0, 1.0, 1.0);
-    for(i = 0; i < N / 3; ++i) {
-      cairo_rectangle(context, particles[i].pos.x,
-                      particles[i].pos.y, 2e-3, 2e-3);
-    }
-    cairo_fill(context);
-    cairo_set_source_rgba(context, 1.0, 1.0, 1.0, 1.0);
-    for(i = (N / 3) + 1; i < ((2 * N) / 3); ++i) {
-      cairo_rectangle(context, particles[i].pos.x,
-                      particles[i].pos.y, 2e-3, 2e-3);
-    }
-    cairo_fill(context);
-    cairo_set_source_rgba(context, 1.0, 1.0, 1.0, 0.1);
-    for(i = ((2 * N) / 3) + 1; i < N; ++i) {
+    for(i = 0; i < N; ++i) {
+      r = f2_norm(particles[i].vel);
+      b = 0.6 - r;
+      printf("%f, %f\n", r, b);
+      cairo_set_source_rgba(context, r, 0.0, b, 1.0);
       cairo_rectangle(context, particles[i].pos.x,
                       particles[i].pos.y, 2e-3, 2e-3);
     }
@@ -73,6 +53,9 @@ int main(int argc, char **argv)
     /* Flush the X window */
     flush_input(xwin);
     update_screen(xwin);
+
+    /* Get the new particles */
+    phys_step(1/60.0);
   }
 
   cairo_destroy(context);

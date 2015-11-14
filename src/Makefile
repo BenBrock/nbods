@@ -6,7 +6,7 @@ CFLAGS=
 LDFLAGS=-lcairo -lm -lX11
 INCLUDE=-I/usr/include/cairo
 
-SOURCES=graphics/displayimage.cpp nbody.cpp tree.cpp
+SOURCES=graphics/displayimage.cpp tree.cpp phys.cpp nbody.cpp
 OBJECTS=$(SOURCES:.cpp=.o)
 
 # Ready
