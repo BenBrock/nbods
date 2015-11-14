@@ -1,4 +1,4 @@
-#include "vec.h"
+#include "vec.hpp"
 
 typedef struct {
   f2 pos;

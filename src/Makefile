@@ -1,4 +1,4 @@
-.SUFFIXES: .c .h .o
+.SUFFIXES: .cpp .hpp .o
 
 # Set up the environment
 CC=clang++
@@ -6,7 +6,7 @@ CFLAGS=
 LDFLAGS=-lcairo -lm -lX11
 INCLUDE=-I/usr/include/cairo
 
-SOURCES=graphics/displayimage.cpp main.c tree.cpp
+SOURCES=graphics/displayimage.cpp nbody.cpp tree.cpp
 OBJECTS=$(SOURCES:.cpp=.o)
 
 # Ready
