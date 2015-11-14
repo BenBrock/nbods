@@ -149,7 +149,10 @@ void destroy_tree(QTnode *parent)
     children.push_back(parent->children[i]);
   }
 
-  free(parent);
+  parent->children.clear();
+  parent->particles.clear();
+
+  delete parent;
 
   for (i = 0; i < children.size(); i++) {
     destroy_tree(children[i]);
