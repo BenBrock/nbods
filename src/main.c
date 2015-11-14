@@ -9,7 +9,10 @@ int main(int argc, char **argv)
 {
   cairo_surface_t *surface;
   cairo_t *context;
-  int x, y, i, width, height, depth;
+  int x, y, i,
+      width, height, depth,
+      screen;
+  Drawable da;
 
   /* Set window size */
   width = 1024;
@@ -21,7 +24,8 @@ int main(int argc, char **argv)
   xwindow_init(width, height, depth, xwin);
   
   /* Create the drawing surface */
-  surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, width, height);
+  surface = cairo_xlib_surface_create((*xwin)->dsp, da, DefaultVisual((*xwin)->dsp, screen), width, height);
+  cairo_xlib_surface_set_size(surface, x, y);
   context = cairo_create(surface);
   cairo_scale(context, width, height);
 
