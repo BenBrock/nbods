@@ -1,30 +1,29 @@
-#include <stdlib.h>
-#include <stdio.h>
+#include <vector>
+#include <list>
 #include "phys.hpp"
+
+#define SIZE 1.0
 
 typedef struct {
   double beg;
   double lim;
 } Bounds;
 
-typedef struct {
-  Particle p;
-  Particle *next;
-} Plist;
+class QTnode {
+public:
 
-typedef struct {
-  QTnode *children[4];
+  QTnode(QTnode *parent, double xbeg, double ybeg, double step);
+  void Print();
+  bool in_bounds(Particle p);
+  bool insert(Particle p);
+
   QTnode *parent;
-  Plist *pl;
   Bounds x, y;
-} QTnode;
+  int num_particles;
 
-QTnode *init_tree(int tree_height);
-void destroy_tree(QTnode *root);
+  std::vector <QTnode *> children;
+  std::list <Particle> particles;
+};
 
-QTnode *init_tnode(QTnode *parent);
-QTnode *init_children(QTnode *parent);
-void destroy_tnode(QTnode *t);
-
-void print_tree(QTnode *root);
-void set_lim(QTnode *t);
+QTnode *init_tree(int height, QTnode *parent);
+void destroy_tree(QTnode *parent);
