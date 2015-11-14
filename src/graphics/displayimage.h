@@ -3,6 +3,7 @@
 
 #include <cairo.h>
 #include <X11/Xlib.h>
+#include <cairo-xlib.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
@@ -25,7 +26,7 @@ struct XWin
   Atom wmdelete;
   XEvent *evt;
   Display *dsp;
-  Window win;
+  Drawable win;
   Visual *visual;
   GC gc;
   
@@ -45,7 +46,7 @@ struct XWin
   struct Key **keys;
 };
 
-void update_screen(unsigned char *pixmap, struct XWin **xwin);
+void update_screen(struct XWin **xwin);
 int  input_ready  (struct XWin **xwin);
 void change_args  (int it, void *args, struct XWin **xwin);
 void flush_input  (struct XWin **xwin);

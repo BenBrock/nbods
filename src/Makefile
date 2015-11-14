@@ -1,13 +1,13 @@
-.SUFFIXES: .c .h .o
+.SUFFIXES: .c .h .hpp .cpp .o
 
 # Set up the environment
-CC=clang
-CFLAGS=-c
+CC=g++
+CFLAGS=
 LDFLAGS=-lcairo -lm -lX11
 INCLUDE=-I/usr/include/cairo
 
 # Define the deps
-SOURCES=graphics/displayimage.c main.c tree.c
+SOURCES=graphics/displayimage.c main.c
 OBJECTS=$(SOURCES:.c=.o)
 
 # Ready
@@ -20,9 +20,9 @@ all: $(OBJECTS) $(EXECUTABLE)
 clean:
 	rm -rf $(OBJECTS) $(EXECUTABLE)
 
-$(EXECUTABLE): $(OBJECTS) $(CUDAOBJECTS)
+$(EXECUTABLE): $(OBJECTS)
 	$(CC) $(LDFLAGS) $(INCLUDE) $(OBJECTS) -o $@
 	rm -rf $(OBJECTS)
 
 .c.o:
-	$(CC) $< -o $@ $(INCLUDE) $(CFLAGS)
+	$(CC) $< -c -o $@ $(INCLUDE) $(CFLAGS)

@@ -1,9 +1,7 @@
 #include "displayimage.h"
 
-void update_screen(unsigned char *pixmap, struct XWin **xwin)
+void update_screen(struct XWin **xwin)
 {
-  (*xwin)->ximage->data = (char *)pixmap;
-  XPutImage((*xwin)->dsp, (*xwin)->win, (*xwin)->gc, (*xwin)->ximage, 0, 0, 0, 0, (*xwin)->width, (*xwin)->height);
   XFlush((*xwin)->dsp);
 }
 
@@ -24,7 +22,7 @@ int input_ready(struct XWin **xwin)
 {
   FD_ZERO(&((*xwin)->input_fd));
   FD_SET((*xwin)->connectnum, &((*xwin)->input_fd));
-  (*xwin)->tv.tv_usec = 100000;
+  (*xwin)->tv.tv_usec = 16000;
   (*xwin)->tv.tv_sec = 0;
   if(select((*xwin)->connectnum + 1, &((*xwin)->input_fd), 0, 0, &((*xwin)->tv))) {
     return 1;
@@ -74,7 +72,7 @@ int create_key(char *keyvalue, void *(*function)(void *),
                 void *args, struct XWin **xwin)
 {
   struct Key **key = (*xwin)->keys + (*xwin)->numkeys;
-  *key = calloc(sizeof(struct Key), 1);
+  *key = (struct Key *)calloc(sizeof(struct Key), 1);
   (*key)->keycode = XKeysymToKeycode((*xwin)->dsp, XStringToKeysym(keyvalue));
   (*key)->function = function;
   (*key)->args = args;
@@ -87,9 +85,9 @@ void xwindow_init(int width, int height, int depth, struct XWin **xwin)
   int screen;
 
   // Allocate some space for the xvars
-  *xwin = calloc(sizeof(struct XWin), 1);
-  (*xwin)->keys = malloc(sizeof(struct Key *) * 20);
-  (*xwin)->evt = malloc(sizeof(XEvent));
+  *xwin = (XWin *)calloc(sizeof(struct XWin), 1);
+  (*xwin)->keys = (Key **)malloc(sizeof(struct Key *) * 20);
+  (*xwin)->evt = (XEvent *)malloc(sizeof(XEvent));
 
   // Initialize the display
   (*xwin)->dsp = XOpenDisplay(NULL);
@@ -119,8 +117,8 @@ void xwindow_init(int width, int height, int depth, struct XWin **xwin)
                             DefaultRootWindow((*xwin)->dsp),
                             0, 0,   // origin
                             (*xwin)->xres, (*xwin)->yres, // size
-                            0, black, // border width/clr
-                            black);   // backgrd clr
+                            0, 0, // border width/clr
+                            0);   // backgrd clr
 
   
   // Window Manager setup
@@ -128,8 +126,6 @@ void xwindow_init(int width, int height, int depth, struct XWin **xwin)
   XSetWMProtocols((*xwin)->dsp, (*xwin)->win, &((*xwin)->wmdelete), 1);
 
   (*xwin)->gc = XCreateGC((*xwin)->dsp, (*xwin)->win, 0, NULL);
-
-  XSetForeground((*xwin)->dsp, (*xwin)->gc, black);
 
   long eventMask = StructureNotifyMask;
   eventMask |= ButtonPressMask|ButtonReleaseMask|KeyPressMask|KeyReleaseMask;
