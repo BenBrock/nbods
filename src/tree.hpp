@@ -1,3 +1,5 @@
+#include <stdlib.h>
+#include <stdio.h>
 #include "phys.h"
 
 typedef struct {

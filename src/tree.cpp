@@ -1,6 +1,7 @@
 #include <cstdlib>
 #include <cstdio>
 #include <queue>
+#include "tree.hpp"
 
 void print_tree(QTnode *root)
 {
