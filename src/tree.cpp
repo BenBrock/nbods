@@ -1,9 +1,30 @@
-#include <stdlib.h>
-#include <stdio.h>
+#include <cstdlib>
+#include <cstdio>
+#include <queue>
 
 void print_tree(QTnode *root)
 {
   int i;
+  int node_no;
+  QTnode *t;
+  std::queue <QTnode *> nodes;
+
+  nodes.push(root);
+  node_no = 0;
+
+  while (!nodes.empty()) {
+    t = nodes.front();
+    nodes.pop();
+    printf("Node %d, %p\n", node_no++, t);
+    printf("Has parent %p\n", t->parent);
+    printf("Has x limits %lf -> %lf\n", t->x->beg, t->x->lim);
+    printf("Has y limits %lf -> %lf\n", t->y->beg, t->y->lim);
+    for (i = 0; i < 4; i++) {
+      if (t->children[i]) {
+        nodes.push(t->children[i]);
+      }
+    }
+  }
 }
 
 QTnode *init_tree(QTnode *root, int tree_height)
