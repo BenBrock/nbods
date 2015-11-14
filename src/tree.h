@@ -1,6 +1,9 @@
 #include "phys.h"
 
-#define BRANCHING_FACTOR 4
+typedef struct {
+  double beg;
+  double lim;
+} Bounds;
 
 typedef struct {
   Particle p;
@@ -8,13 +11,18 @@ typedef struct {
 } Plist;
 
 typedef struct {
-  Tnode *children[BRANCHING_FACTOR];
-  Tnode *parent;
+  QTnode *children[4];
+  QTnode *parent;
   Plist *pl;
-} Tnode;
+  Bounds x, y;
+} QTnode;
 
-Tnode *init_tree(int tree_height);
-void destroy_tree(Tnode *t);
+QTnode *init_tree(int tree_height);
+void destroy_tree(QTnode *root);
 
-Tnode *init_tnode(Tnode *parent);
-void destroy_tnode();
+QTnode *init_tnode(QTnode *parent);
+QTnode *init_children(QTnode *parent);
+void destroy_tnode(QTnode *t);
+
+void print_tree(QTnode *root);
+void set_lim(QTnode *t);

@@ -1,35 +1,89 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-Tnode *init_tree(int tree_height)
-{
-}
-
-void destroy_tree(Tnode *t)
+void print_tree(QTnode *root)
 {
   int i;
-  for (i = 0; i < BRANCHING_FACTOR; i++) {
+}
+
+QTnode *init_tree(QTnode *root, int tree_height)
+{
+  int i;
+  QTnode *t;
+
+  if (!root) {
+    root = init_tnode(NULL);
   }
+
+  init_children(root);
+
+  if (tree_height > 0) {
+    for (i = 0; i < 4; i++) {
+      init_tree(root->children[i], tree_height-1);
+    }
+  }
+
+  return root;
 }
 
-Tnode *init_tnode(Tnode *parent)
+void destroy_tree(QTnode *root)
 {
   int i;
-  Tnode *t;
 
-  t = malloc(sizeof(Tnode));
+  for (i = 0; i < 4; i++) {
+    if (root->children[i]) {
+      destroy_tree(root->children[i]);
+    }
+  }
 
-  for (i = 0; i < BRANCHING_FACTOR; i++) {
+  destroy_tnode(root);
+}
+
+QTnode *init_tnode(QTnode *parent)
+{
+  int i;
+  QTnode *t;
+
+  t = malloc(sizeof(QTnode));
+
+  for (i = 0; i < 4; i++) {
     t->children[i] = NULL;
   }
 
   t->parent = parent;
   t->pl = NULL;
 
+  if (t->parent == NULL) {
+    t->xlim = 1.0;
+    t->ylim = 1.0;
+  }
+
   return t;
 }
 
-void destroy_tnode(Tnode *t)
+QTnode *init_children(QTnode *parent)
+{
+  int k;
+  double i, j;
+  double step;
+  Bounds x, y;
+
+  step = (parent->xlim - parent->xbeg) / 2.0;
+
+  k = 0;
+
+  for (j = parent->ybeg; k < 4; j += step) {
+    for (i = parent->xbeg; k < 4; i += step) {
+      parent->children[k] = init_tnode(parent);
+      set_lim(parent->children[k], i, j, step);
+      k++;
+    }
+  }
+
+  return parent;
+}
+
+void destroy_tnode(QTnode *t)
 {
   Plist *p, *tmp;
 
@@ -42,4 +96,12 @@ void destroy_tnode(Tnode *t)
   }
 
   free(t);
+}
+
+void set_lim(QTnode *t, double xbeg, double ybeg, double step)
+{
+  t->x->beg = xbeg;
+  t->x->lim = xbeg+step;
+  t->y->beg = ybeg;
+  t->y->lim = ybeg+step;
 }
