@@ -1,5 +1,5 @@
 #include "phys.hpp"
-#include "graphics/displayimage.h"
+#include "graphics/displayimage.hpp"
 
 #define N 10000
 

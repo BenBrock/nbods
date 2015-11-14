@@ -1,4 +1,4 @@
-#include "displayimage.h"
+#include "displayimage.hpp"
 
 void update_screen(struct XWin **xwin)
 {
