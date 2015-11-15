@@ -21,7 +21,8 @@ public:
   int get_num_particles();
   void recalc_num_particles();
 
-  void calc_global_vel();
+  void calc_global_accel();
+  void move_shit();
   f2 calc_accel(Particle p);
 
   QTnode *parent;

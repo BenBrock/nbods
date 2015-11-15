@@ -38,7 +38,7 @@ void QTnode::Print()
 /* Always call this on the root node.
    If you call this from another node,
    you're a dick. */
-void QTnode::calc_global_vel()
+void QTnode::calc_global_accel()
 {
   int i;
   QTnode *t;
@@ -56,12 +56,44 @@ void QTnode::calc_global_vel()
     if (t->children.empty()) {
       for (std::list <Particle>::iterator p = t->particles.begin(); p != t->particles.end(); p++) {
         (*p).accel = calc_accel(*p);
+        printf("Particle has accel <%lf, %lf>\n", (*p).accel.x, (*p).accel.y);
       }
     } else {
       for (i = 0; i < t->children.size(); i++) {
         nodes.push(t->children[i]);
       }
     }
+  }
+}
+
+/* Call this on root node pls. */
+void QTnode::move_shit()
+{
+  QTnode *t;
+  std::queue <QTnode *> nodes;
+  std::list <Particle> tmp;
+
+  nodes.push(this);
+
+  while (!nodes.empty()) {
+    t = nodes.front();
+    nodes.pop();
+
+    if (!t->children.empty()) {
+      for (int i = 0; i < t->children.size(); i++) {
+        nodes.push(t->children[i]);
+      }
+    } else {
+      for (std::list <Particle>::iterator p = t->particles.begin(); p != t->particles.end(); p++) {
+        *p = phys_move_particle(*p);
+        tmp.push_back(*p);
+        t->particles.erase(p);
+      }
+    }
+  }
+
+  for (std::list <Particle>::iterator p = tmp.begin(); p != tmp.end(); p++) {
+    insert(*p);
   }
 }
 

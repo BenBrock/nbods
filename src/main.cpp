@@ -26,14 +26,13 @@ int main(int argc, char **argv)
   printf("%lu to insert.\n", end - begin);
 
   // tree->Print();
+  tree->calc_global_accel();
 
   begin = time(0);
   destroy_tree(tree);
   end = time(0);
 
   printf("%lu to destroy.\n", end - begin);
-
-  sleep(30);
 
   return 0;
 }
