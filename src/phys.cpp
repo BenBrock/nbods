@@ -1,12 +1,14 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include <assert.h>
 #include "vec.hpp"
 #include "phys.hpp"
 
 /* gravitational constant */
 #define G 1.0e-3
 #define RMIN 1.0e-2
+// #define RENORMALIZATION_ENABLE
 
 Particle *particles;
 int N;
@@ -42,7 +44,9 @@ void phys_init(int n)
     particles[i].vel.x = (double) rand() / RAND_MAX - 0.5;
     particles[i].vel.y = (double) rand() / RAND_MAX - 0.5;
   }
+#if RENORMALIZATION_ENABLE
   E0 = get_energy();
+#endif
 }
 
 void phys_step(double dt)
@@ -82,16 +86,24 @@ void phys_step(double dt)
   }
 
   /* Renormalization */
+#if RENORMALIZATION_ENABLE
   double E = get_energy();
   for (int i = 0; i < N; i++) {
     particles[i].vel = f2_mult(particles[i].vel, E / E0);
   }
+#endif
 }
 
-double asdf(double r)
+
+f2 phys_get_force(f2 r)
 {
-  return 1.0 / r;
+  double r_norm = f2_norm(r);
+  if (r_norm < RMIN)
+    return 0.0;
+
+  return f2_mult(r, 1/(r_norm*r_norm*r_norm));
 }
+
 
 void phys_print()
 {

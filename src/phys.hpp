@@ -12,3 +12,4 @@ extern int N;
 void phys_init(int n);
 void phys_step(double dt);
 void phys_print();
+f2 phys_get_force(f2 r);
