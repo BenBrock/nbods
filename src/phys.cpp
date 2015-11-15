@@ -7,7 +7,7 @@
 
 /* gravitational constant */
 #define G 1.0e-3
-#define DT 1e-3
+#define DT 1e-2
 #define RMIN 1.0e-2
 // #define RENORMALIZATION_ENABLE
 
