@@ -99,7 +99,7 @@ f2 phys_get_force(f2 r)
 {
   double r_norm = f2_norm(r);
   if (r_norm < RMIN)
-    return 0.0;
+    return (f2) {0.0, 0.0};
 
   return f2_mult(r, 1/(r_norm*r_norm*r_norm));
 }

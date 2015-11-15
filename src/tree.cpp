@@ -88,13 +88,13 @@ f2 QTnode::calc_accel(Particle p)
     if (t->x.lim - t->x.beg > height) {
       /* Far enough away to use quad as point. */
       /* Do it and set accel. */
-      accel = f2_add(accel, t->get_num_particles()*phys_get_force(p.pos, t->get_centroid()));
+      accel = f2_add(accel, f2_mult(phys_get_force(f2_minus(p.pos, t->get_centroid())), t->get_num_particles()));
     } else {
       /* Quad is too close. If leaf, then do particles. */
       if (t->children.empty()) {
         for (std::list <Particle>::iterator pp = t->particles.begin(); pp != t->particles.end(); pp++) {
           /* Compute distance shit, set accel. */
-          accel = f2_add(accel, phys_get_force(p.pos, (*pp).pos));
+          accel = f2_add(accel, phys_get_force(f2_minus(p.pos, (*pp).pos)));
         }
       } else {
         /* Not leaf, and quad isn't good enough.
