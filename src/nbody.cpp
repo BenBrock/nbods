@@ -1,5 +1,5 @@
-#include "phys.hpp"
 #include "graphics/displayimage.hpp"
+#include "tree.hpp"
 
 int main(int argc, char **argv)
 {
@@ -9,6 +9,7 @@ int main(int argc, char **argv)
       width, height, depth,
       screen, pressed_key;
   double r, b, v;
+  QTnode *tree;
 
   /* Set window size */
   width = 1024;
@@ -25,10 +26,17 @@ int main(int argc, char **argv)
   context = cairo_create(surface);
   cairo_scale(context, width, height);
 
-  /* Initialize the physics web-scale cloud */
-  phys_init(2000);
+  /* Create the quad tree */
+  tree = init_tree(3, NULL);
+  for(i = 0; i < 1000; ++i) {
+    tree->insert(phys_gen_particle());
+  }
 
   while(!((*xwin)->should_close)) {
+
+    /* Fill particles */
+    tree->calc_global_accel();
+    tree->move_shit();
     
     /* Wait on the input (also sync up to disable flickering) */
     if(input_ready(xwin)) {
@@ -49,7 +57,7 @@ int main(int argc, char **argv)
       }
       cairo_set_source_rgba(context, (double)r, 0.0, (double)b, 1.0);
       cairo_rectangle(context, particles[i].pos.x,
-                      particles[i].pos.y, 2e-3, 2e-3);
+                      particles[i].pos.y, 1e-3, 1e-3);
       cairo_fill(context);
     }
 
@@ -60,7 +68,8 @@ int main(int argc, char **argv)
     /* Get the new particles */
     phys_step(1/60.0);
   }
-
+  
+  destroy_tree(tree);
   cairo_destroy(context);
   cairo_surface_destroy(surface);
   xwindow_del(xwin);
