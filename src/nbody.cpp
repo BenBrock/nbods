@@ -27,17 +27,10 @@ int main(int argc, char **argv)
   context = cairo_create(surface);
   cairo_scale(context, width, height);
 
-  /* Create the quad tree */
-  tree = init_tree(4, NULL);
-  for(i = 0; i < 10000; ++i) {
-    tree->insert(phys_gen_particle());
-  }
 
-  while(!((*xwin)->should_close)) {
+  phys_init(1000);
 
-    /* Fill particles */
-    tree->calc_global_accel();
-    tree->move_shit();
+  while (!((*xwin)->should_close)) {
     
     /* Wait on the input (also sync up to disable flickering) */
     if(input_ready(xwin)) {
@@ -48,35 +41,13 @@ int main(int argc, char **argv)
     cairo_set_source_rgb(context, 0.0, 0.0, 0.0);
     cairo_paint(context);
 
-    /* Draw the particles */
-    std::queue <QTnode *> nodes;
-    QTnode *t;
-
-    nodes.push(tree);
-
-    while (!nodes.empty()) {
-      t = nodes.front();
-      nodes.pop();
-
-      if (!t->children.empty()) {
-        for (i = 0; i < t->children.size(); i++) {
-          nodes.push(t->children[i]);
-        }
-      } else {
-        for (std::list <Particle>::iterator p = t->particles.begin(); p != t->particles.end(); p++) {
-          v = f2_norm((*p).vel);
-          if(v >= 0.4) {
-            r = 1.0; b = 0.0;
-          } else if(v < 0.5) {
-            b = 1.0; r = 0.0;
-          }
-          cairo_set_source_rgba(context, (double)r, 0.0, (double)b, 1.0);
-          cairo_rectangle(context, (*p).pos.x,
-                          (*p).pos.y, 1e-3, 1e-3);
-          cairo_fill(context);
-        }
-      }
+    
+    for (int i = 0; i < N; i++) {
+      cairo_set_source_rgba(context, 1.0, 1.0, 1.0, 1.0);
+      cairo_rectangle(context, particles[i].pos.x, particles[i].pos.y, 1e-3, 1e-3);
+      cairo_fill(context);
     }
+
 
     /* Flush the X window */
     flush_input(xwin);
