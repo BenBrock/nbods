@@ -8,7 +8,7 @@ int main(int argc, char **argv)
   int x, y, i,
       width, height, depth,
       screen, pressed_key;
-  double r, b;
+  double r, b, v;
 
   /* Set window size */
   width = 1024;
@@ -26,7 +26,7 @@ int main(int argc, char **argv)
   cairo_scale(context, width, height);
 
   /* Initialize the physics web-scale cloud */
-  phys_init(5000);
+  phys_init(2000);
 
   while(!((*xwin)->should_close)) {
     
@@ -41,14 +41,17 @@ int main(int argc, char **argv)
 
     /* Draw the particles */
     for(i = 0; i < N; ++i) {
-      r = f2_norm(particles[i].vel);
-      b = 0.6 - r;
-      printf("%f, %f\n", r, b);
-      cairo_set_source_rgba(context, r, 0.0, b, 1.0);
+      v = f2_norm(particles[i].vel);
+      if(v >= 0.4) {
+        r = 1.0; b = 0.0;
+      } else if(v < 0.5) {
+        b = 1.0; r = 0.0;
+      }
+      cairo_set_source_rgba(context, (double)r, 0.0, (double)b, 1.0);
       cairo_rectangle(context, particles[i].pos.x,
                       particles[i].pos.y, 2e-3, 2e-3);
+      cairo_fill(context);
     }
-    cairo_fill(context);
 
     /* Flush the X window */
     flush_input(xwin);
