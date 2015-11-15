@@ -48,28 +48,14 @@ int main(int argc, char **argv)
   context = cairo_create(surface);
   cairo_scale(context, width, height);
 
-  /* Create the quad tree */
-  tree = init_tree(4, NULL);
-  for(i = 0; i < 1000; ++i) {
-    tree->insert(phys_gen_particle());
-  }
-  
+  phys_init(1000);
+
   png = 0;
   while(1) {
     if(rendering) {
       if((*xwin)->should_close) {
         break;
       }
-    }
-
-    std::queue <QTnode *> nodes;
-    QTnode *t;
-
-    /* Fill particles */
-    timing(tree->calc_global_accel());
-    timing(tree->move_shit());
-
-    if(rendering) {
       /* Wait on the input (also sync up to disable flickering) */
       if(input_ready(xwin)) {
         pressed_key = get_key(xwin);
@@ -80,33 +66,21 @@ int main(int argc, char **argv)
     cairo_set_source_rgb(context, 0.0, 0.0, 0.0);
     cairo_paint(context);
 
-    nodes.push(tree);
-    while (!nodes.empty()) {
-      t = nodes.front();
-      nodes.pop();
-
-      if (!t->children.empty()) {
-        for (i = 0; i < t->children.size(); i++) {
-          nodes.push(t->children[i]);
-        }
-      } else {
-        for (std::list <Particle>::iterator p = t->particles.begin(); p != t->particles.end(); p++) {
-          v = f2_norm((*p).vel);
-          if(v >= 0.4) {
-            r = 1.0; b = 0.0;
-          } else if(v < 0.5) {
-            b = 1.0; r = 0.0;
-          }
-          cairo_set_source_rgba(context, (double)r, 0.0, (double)b, 1.0);
-          cairo_rectangle(context, (*p).pos.x,
-                          (*p).pos.y, 2e-3, 2e-3);
-          cairo_fill(context);
-          cairo_set_source_rgba(context, (double)r, 0.0, (double)b, 0.2);
-          cairo_rectangle(context, (*p).pos.x - 1e-3,
-                          (*p).pos.y - 1e-3, 4e-3, 4e-3);
-          cairo_fill(context);
-        }
+    for (int i = 0; i < N; i++) {
+      v = f2_norm(particles[i].vel);
+      if(v >= 0.4) {
+        r = 1.0; b = 0.0;
+      } else if(v < 0.5) {
+        b = 1.0; r = 0.0;
       }
+      cairo_set_source_rgba(context, (double)r, 0.0, (double)b, 1.0);
+      cairo_rectangle(context, particles[i].pos.x,
+                      particles[i].pos.y, 2e-3, 2e-3);
+      cairo_fill(context);
+      cairo_set_source_rgba(context, (double)r, 0.0, (double)b, 0.2);
+      cairo_rectangle(context, particles[i].pos.x - 1e-3,
+                      particles[i].pos.y - 1e-3, 4e-3, 4e-3);
+      cairo_fill(context);
     }
    
     if(rendering) {
@@ -119,6 +93,9 @@ int main(int argc, char **argv)
       printf("Making %s\n", buf);
       cairo_surface_write_to_png (surface, buf);
     }
+
+    /* Get the new particles */
+    phys_step(1/60.0);
   }
   
   destroy_tree(tree);
