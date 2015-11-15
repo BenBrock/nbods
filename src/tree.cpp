@@ -35,6 +35,87 @@ void QTnode::Print()
   }
 }
 
+/* Always call this on the root node.
+   If you call this from another node,
+   you're a dick. */
+void QTnode::calc_global_vel()
+{
+  int i;
+  QTnode *t;
+  std::queue <QTnode *> nodes;
+
+  nodes.push(this);
+
+  /* Perform a breadth-first traversal
+     through all particles. */
+
+  while (!nodes.empty()) {
+    t = nodes.front();
+    nodes.pop();
+
+    if (t->children.empty()) {
+      for (std::list <Particle>::iterator p = t->particles.begin(); p != t->particles.end(); p++) {
+        (*p).accel = calc_accel(*p);
+      }
+    } else {
+      for (i = 0; i < t->children.size(); i++) {
+        nodes.push(t->children[i]);
+      }
+    }
+  }
+}
+
+/* Calculate acceleration for p,
+   looking through QT with BFS.  */
+f2 QTnode::calc_accel(Particle p)
+{
+  double r, height;
+  std::queue <QTnode *> nodes;
+  QTnode *t;
+
+  nodes.push(this);
+
+  // YOLO
+  f2 accel = (f2) {0.0, 0.0};
+
+  while (!nodes.empty()) {
+    t = nodes.front();
+    nodes.pop();
+
+    r = f2_norm(f2_minus(p.pos, t->get_centroid()));
+    height = 1.0 / r;
+
+    if (t->x.lim - t->x.beg > height) {
+      /* Far enough away to use quad as point. */
+      /* Do it and set accel. */
+      accel = f2_add(accel, t->get_num_particles()*phys_get_force(p.pos, t->get_centroid()));
+    } else {
+      /* Quad is too close. If leaf, then do particles. */
+      if (t->children.empty()) {
+        for (std::list <Particle>::iterator pp = t->particles.begin(); pp != t->particles.end(); pp++) {
+          /* Compute distance shit, set accel. */
+          accel = f2_add(accel, phys_get_force(p.pos, (*pp).pos));
+        }
+      } else {
+        /* Not leaf, and quad isn't good enough.
+           Add children for EXAMINATION. */
+        for (int i = 0; i < children.size(); i++) {
+          nodes.push(t->children[i]);
+        }
+      }
+    }
+  }
+
+  // YOLO again
+  return accel;
+}
+
+/* Centroid is just center of quad (for now). */
+f2 QTnode::get_centroid()
+{
+  return (f2) {(x.lim + x.beg) / 2.0, (y.lim + y.beg) / 2.0};
+}
+
 /* Always insert into root (first).
    If you insert into another node,
    you're a dick. */
@@ -98,7 +179,7 @@ void QTnode::recalc_num_particles()
   }
 }
 
-QTnode::QTnode(QTnode *parent, double xbeg, double ybeg, double step)
+QTnode::QTnode(QTnode *parent, double xbeg, double ybeg, double step, int height)
 {
   this->parent = parent;
 
@@ -108,6 +189,7 @@ QTnode::QTnode(QTnode *parent, double xbeg, double ybeg, double step)
   this->y.lim = ybeg+step;
 
   this->num_particles = 0;
+  this->height = height;
 }
 
 QTnode *init_tree(int height, QTnode *parent)
@@ -118,7 +200,7 @@ QTnode *init_tree(int height, QTnode *parent)
 
   if (height >= 0) {
     if (!parent) {
-      t = new QTnode(parent, 0.0, 0.0, SIZE);
+      t = new QTnode(parent, 0.0, 0.0, SIZE, height);
       init_tree(height-1, t);
     } else {
       step = (parent->x.lim - parent->x.beg) / 2.0;
@@ -126,7 +208,7 @@ QTnode *init_tree(int height, QTnode *parent)
       for (ybeg = parent->y.beg; j < 2; ybeg += step) {
         i = 0;
         for (xbeg = parent->x.beg; i < 2; xbeg += step) {
-          t = new QTnode(parent, xbeg, ybeg, step);
+          t = new QTnode(parent, xbeg, ybeg, step, height);
           parent->children.push_back(t);
           init_tree(height-1, t);
           i++;
