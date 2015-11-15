@@ -19,7 +19,7 @@ int main(int argc, char **argv)
 
   begin = time(0);
   for (int i = 0; i < 1000; i++) {
-    tree->insert(gen_particle());
+    tree->insert(phys_gen_particle());
   }
   end = time(0);
 
@@ -35,15 +35,4 @@ int main(int argc, char **argv)
   printf("%lu to destroy.\n", end - begin);
 
   return 0;
-}
-
-Particle gen_particle()
-{
-  Particle p;
-
-  p.pos = (f2) {drand48(), drand48()};
-  p.vel = (f2) {0.0, 0.0};
-  p.accel = (f2) {0.0, 0.0};
-
-  return p;
 }

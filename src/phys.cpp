@@ -132,6 +132,16 @@ Particle phys_move_particle(Particle p)
   return p;
 }
 
+Particle phys_gen_particle()
+{
+  Particle p;
+
+  p.pos = (f2) {drand48(), drand48()};
+  p.vel = (f2) {0.0, 0.0};
+  p.accel = (f2) {0.0, 0.0};
+
+  return p;
+}
 
 void phys_print()
 {
