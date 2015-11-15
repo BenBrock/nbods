@@ -27,6 +27,8 @@ void phys_step(double dt)
   for (int i = 0; i < N; i++) {
     f2 acc = {0, 0};
     for (int j = 0; j < N; j++) {
+      f2 r = f2_minus(particles[i].pos, particles[j].pos);
+      acc = f2_add(acc, f2_mult(r, pow(f2_norm(r), -3)));
     }
     acc = f2_mult(acc, G);
     particles[i].vel = f2_add(particles[i].vel, f2_mult(acc, dt));
