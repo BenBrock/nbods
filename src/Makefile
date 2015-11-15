@@ -2,7 +2,7 @@
 
 # Set up the environment
 CC=clang++
-CFLAGS=
+CXXFLAGS= -g
 LDFLAGS=-lcairo -lm -lX11
 INCLUDE=-I/usr/include/cairo
 
@@ -20,8 +20,8 @@ clean:
 	rm -rf $(OBJECTS) $(EXECUTABLE)
 
 $(EXECUTABLE): $(OBJECTS)
-	$(CC) $(LDFLAGS) $(INCLUDE) $(OBJECTS) -o $@
+	$(CC) $(LDFLAGS) $(INCLUDE) $(OBJECTS) $(CXXFLAGS) -o $@
 	rm -rf $(OBJECTS)
 
 .cpp.o:
-	$(CC) $< -c -o $@ $(INCLUDE) $(CFLAGS)
+	$(CC) $< -c -o $@ $(INCLUDE) $(CXXFLAGS)

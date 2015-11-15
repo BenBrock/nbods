@@ -29,8 +29,15 @@ int main(int argc, char **argv)
 
   /* Create the quad tree */
   tree = init_tree(4, NULL);
-  for(i = 0; i < 10000; ++i) {
+  for(i = 0; i < 1000000; ++i) {
     tree->insert(phys_gen_particle());
+    if (i % 10000 == 0)
+      printf("HAI: %d\n", i);
+  }
+
+  for (int i = 0;; i++) {
+    phys_step(1/60.0);
+    printf("PINGERS: %d\n", i);
   }
 
   while(!((*xwin)->should_close)) {
