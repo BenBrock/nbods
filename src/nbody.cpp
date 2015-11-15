@@ -1,5 +1,6 @@
-#include "phys.hpp"
 #include "graphics/displayimage.hpp"
+#include "tree.hpp"
+#include <queue>
 
 int main(int argc, char **argv)
 {
@@ -9,6 +10,7 @@ int main(int argc, char **argv)
       width, height, depth,
       screen, pressed_key;
   double r, b, v;
+  QTnode *tree;
 
   /* Set window size */
   width = 1024;
@@ -25,10 +27,17 @@ int main(int argc, char **argv)
   context = cairo_create(surface);
   cairo_scale(context, width, height);
 
-  /* Initialize the physics web-scale cloud */
-  phys_init(2000);
+  /* Create the quad tree */
+  tree = init_tree(3, NULL);
+  for(i = 0; i < 1000; ++i) {
+    tree->insert(phys_gen_particle());
+  }
 
   while(!((*xwin)->should_close)) {
+
+    /* Fill particles */
+    tree->calc_global_accel();
+    tree->move_shit();
     
     /* Wait on the input (also sync up to disable flickering) */
     if(input_ready(xwin)) {
@@ -40,17 +49,33 @@ int main(int argc, char **argv)
     cairo_paint(context);
 
     /* Draw the particles */
-    for(i = 0; i < N; ++i) {
-      v = f2_norm(particles[i].vel);
-      if(v >= 0.4) {
-        r = 1.0; b = 0.0;
-      } else if(v < 0.5) {
-        b = 1.0; r = 0.0;
+    std::queue <QTnode *> nodes;
+    QTnode *t;
+
+    nodes.push(tree);
+
+    while (!nodes.empty()) {
+      t = nodes.front();
+      nodes.pop();
+
+      if (!t->children.empty()) {
+        for (i = 0; i < t->children.size(); i++) {
+          nodes.push(t->children[i]);
+        }
+      } else {
+        for (std::list <Particle>::iterator p = t->particles.begin(); p != t->particles.end(); p++) {
+          v = f2_norm((*p).vel);
+          if(v >= 0.4) {
+            r = 1.0; b = 0.0;
+          } else if(v < 0.5) {
+            b = 1.0; r = 0.0;
+          }
+          cairo_set_source_rgba(context, (double)r, 0.0, (double)b, 1.0);
+          cairo_rectangle(context, (*p).pos.x,
+                          (*p).pos.y, 1e-3, 1e-3);
+          cairo_fill(context);
+        }
       }
-      cairo_set_source_rgba(context, (double)r, 0.0, (double)b, 1.0);
-      cairo_rectangle(context, particles[i].pos.x,
-                      particles[i].pos.y, 2e-3, 2e-3);
-      cairo_fill(context);
     }
 
     /* Flush the X window */
@@ -60,7 +85,8 @@ int main(int argc, char **argv)
     /* Get the new particles */
     phys_step(1/60.0);
   }
-
+  
+  destroy_tree(tree);
   cairo_destroy(context);
   cairo_surface_destroy(surface);
   xwindow_del(xwin);
