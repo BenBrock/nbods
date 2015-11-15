@@ -114,7 +114,7 @@ f2 QTnode::calc_accel(Particle p)
     nodes.pop();
 
     r = f2_norm(f2_minus(p.pos, t->get_centroid()));
-    height = 1.0 / r;
+    height = 0.5 / r;
 
     if (t->x.lim - t->x.beg > height) {
       /* Far enough away to use quad as point. */

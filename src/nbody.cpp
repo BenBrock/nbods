@@ -28,8 +28,8 @@ int main(int argc, char **argv)
   cairo_scale(context, width, height);
 
   /* Create the quad tree */
-  tree = init_tree(3, NULL);
-  for(i = 0; i < 1000; ++i) {
+  tree = init_tree(4, NULL);
+  for(i = 0; i < 10000; ++i) {
     tree->insert(phys_gen_particle());
   }
 
