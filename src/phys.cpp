@@ -7,6 +7,7 @@
 
 /* gravitational constant */
 #define G 1.0e-3
+#define DT 1e-3
 #define RMIN 1.0e-2
 // #define RENORMALIZATION_ENABLE
 
@@ -101,7 +102,34 @@ f2 phys_get_force(f2 r)
   if (r_norm < RMIN)
     return (f2) {0.0, 0.0};
 
-  return f2_mult(r, 1/(r_norm*r_norm*r_norm));
+  return f2_mult(r, G / (r_norm*r_norm*r_norm));
+}
+
+
+Particle phys_move_particle(Particle p)
+{
+  p.vel = f2_add(p.vel, f2_mult(p.accel, DT));
+  p.pos = f2_add(p.pos, f2_mult(p.vel, DT));
+
+  /* Bounce on walls */
+  if (p.pos.x < 0.0) {
+    p.pos.x *= -1;
+    p.vel.x *= -1;
+  }
+  else if (p.pos.x >= 1.0) {
+    p.pos.x = 2.0 - p.pos.x;
+    p.vel.x *= -1;
+  }
+  if (p.pos.y < 0.0) {
+    p.pos.y *= -1;
+    p.vel.y *= -1;
+  }
+  else if (p.pos.y >= 1.0) {
+    p.pos.y = 2.0 - p.pos.y;
+    p.vel.y *= -1;
+  }
+
+  return p;
 }
 
 

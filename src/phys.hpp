@@ -13,3 +13,4 @@ void phys_init(int n);
 void phys_step(double dt);
 void phys_print();
 f2 phys_get_force(f2 r);
+Particle phys_move_particle(Particle particle);
