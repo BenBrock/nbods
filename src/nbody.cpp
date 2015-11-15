@@ -48,7 +48,7 @@ int main(int argc, char **argv)
   context = cairo_create(surface);
   cairo_scale(context, width, height);
 
-  phys_init(1000);
+  phys_init(100000);
 
   png = 0;
   while(1) {
@@ -95,7 +95,7 @@ int main(int argc, char **argv)
     }
 
     /* Get the new particles */
-    phys_step(1/60.0);
+    timing(phys_step(1/60.0));
   }
   
   destroy_tree(tree);

@@ -1,4 +1,5 @@
 #include "vec.hpp"
+#include <omp.h>
 
 typedef struct {
   f2 pos;

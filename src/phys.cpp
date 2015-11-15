@@ -52,6 +52,7 @@ void phys_init(int n)
 
 void phys_step(double dt)
 {
+  #pragma omp parallel for
   for (int i = 0; i < N; i++) {
     f2 acc = {0, 0};
     for (int j = 0; j < N; j++) {
