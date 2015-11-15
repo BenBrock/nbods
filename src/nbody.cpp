@@ -1,5 +1,6 @@
 #include "graphics/displayimage.hpp"
 #include "tree.hpp"
+#include <queue>
 
 int main(int argc, char **argv)
 {
@@ -48,17 +49,33 @@ int main(int argc, char **argv)
     cairo_paint(context);
 
     /* Draw the particles */
-    for(i = 0; i < N; ++i) {
-      v = f2_norm(particles[i].vel);
-      if(v >= 0.4) {
-        r = 1.0; b = 0.0;
-      } else if(v < 0.5) {
-        b = 1.0; r = 0.0;
+    std::queue <QTnode *> nodes;
+    QTnode *t;
+
+    nodes.push(tree);
+
+    while (!nodes.empty()) {
+      t = nodes.front();
+      nodes.pop();
+
+      if (!t->children.empty()) {
+        for (i = 0; i < t->children.size(); i++) {
+          nodes.push(t->children[i]);
+        }
+      } else {
+        for (std::list <Particle>::iterator p = t->particles.begin(); p != t->particles.end(); p++) {
+          v = f2_norm((*p).vel);
+          if(v >= 0.4) {
+            r = 1.0; b = 0.0;
+          } else if(v < 0.5) {
+            b = 1.0; r = 0.0;
+          }
+          cairo_set_source_rgba(context, (double)r, 0.0, (double)b, 1.0);
+          cairo_rectangle(context, (*p).pos.x,
+                          (*p).pos.y, 1e-3, 1e-3);
+          cairo_fill(context);
+        }
       }
-      cairo_set_source_rgba(context, (double)r, 0.0, (double)b, 1.0);
-      cairo_rectangle(context, particles[i].pos.x,
-                      particles[i].pos.y, 1e-3, 1e-3);
-      cairo_fill(context);
     }
 
     /* Flush the X window */

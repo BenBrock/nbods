@@ -12,13 +12,13 @@ int main(int argc, char **argv)
   QTnode *tree;
 
   begin = time(0);
-  tree = init_tree(3, NULL);
+  tree = init_tree(2, NULL);
   end = time(0);
 
   printf("%lu to init.\n", end - begin);
 
   begin = time(0);
-  for (int i = 0; i < 1000; i++) {
+  for (int i = 0; i < 100; i++) {
     tree->insert(phys_gen_particle());
   }
   end = time(0);
@@ -27,6 +27,7 @@ int main(int argc, char **argv)
 
   // tree->Print();
   tree->calc_global_accel();
+  tree->move_shit();
 
   begin = time(0);
   destroy_tree(tree);

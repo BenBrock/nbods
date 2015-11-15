@@ -56,7 +56,7 @@ void QTnode::calc_global_accel()
     if (t->children.empty()) {
       for (std::list <Particle>::iterator p = t->particles.begin(); p != t->particles.end(); p++) {
         (*p).accel = calc_accel(*p);
-        printf("Particle has accel <%lf, %lf>\n", (*p).accel.x, (*p).accel.y);
+        // printf("Particle has accel <%lf, %lf>\n", (*p).accel.x, (*p).accel.y);
       }
     } else {
       for (i = 0; i < t->children.size(); i++) {
@@ -85,10 +85,9 @@ void QTnode::move_shit()
       }
     } else {
       for (std::list <Particle>::iterator p = t->particles.begin(); p != t->particles.end(); p++) {
-        *p = phys_move_particle(*p);
-        tmp.push_back(*p);
-        t->particles.erase(p);
+        tmp.push_back(phys_move_particle(*p));
       }
+      t->particles.clear();
     }
   }
 
