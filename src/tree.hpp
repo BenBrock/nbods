@@ -16,6 +16,8 @@ public:
   void Print();
   bool in_bounds(Particle p);
   bool insert(Particle p);
+  int get_num_particles();
+  void recalc_num_particles();
 
   QTnode *parent;
   Bounds x, y;
