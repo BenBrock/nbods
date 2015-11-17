@@ -3,6 +3,8 @@
 #include <queue>
 #include "tree.hpp"
 
+#define THETA 0.5
+
 /* Print the MOTHERFUCKING subtree beginning at this.
    Generally, just call this on the root and it'll print
    yo tree. */
@@ -101,7 +103,7 @@ void QTnode::move_shit()
    looking through QT with BFS.  */
 f2 QTnode::calc_accel(Particle p)
 {
-  double r, height;
+  double d, s;
   std::queue <QTnode *> nodes;
   QTnode *t;
 
@@ -114,9 +116,10 @@ f2 QTnode::calc_accel(Particle p)
     t = nodes.front();
     nodes.pop();
 
-    r = f2_norm(f2_minus(p.pos, t->get_centroid()));
+    d = f2_norm(f2_minus(p.pos, t->get_centroid()));
+    s = t->x.lim - t->x.beg;
 
-    if (r > 2.0 * (t->x.lim - t->x.beg)) {
+    if (s / d < THETA) {
       /* Far enough away to use quad as point. */
       /* Do it and set accel. */
       accel = f2_add(accel, f2_mult(phys_get_force(f2_minus(p.pos, t->get_centroid())), t->get_num_particles()));
