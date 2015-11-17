@@ -34,6 +34,7 @@ public:
 
   std::vector <QTnode *> children;
   std::list <Particle> particles;
+  int psize;
 };
 
 QTnode *init_tree(int height, QTnode *parent);

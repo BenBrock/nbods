@@ -21,7 +21,7 @@ void QTnode::Print()
     printf("Node %p\n", t);
     printf("Has x-bounds %lf -> %lf\n", t->x.beg, t->x.lim);
     printf("Has y-bounds %lf -> %lf\n", t->y.beg, t->y.lim);
-    printf("Has %lu particles.\n", t->particles.size());
+    printf("Has %d particles.\n", t->psize);
     printf("Has %lu children.\n", t->children.size());
     printf("Has parent %p\n", t->parent);
 
@@ -88,6 +88,7 @@ void QTnode::move_shit()
         tmp.push_back(phys_move_particle(*p));
       }
       t->particles.clear();
+      t->psize = 0;
     }
   }
 
@@ -114,9 +115,8 @@ f2 QTnode::calc_accel(Particle p)
     nodes.pop();
 
     r = f2_norm(f2_minus(p.pos, t->get_centroid()));
-    height = 0.5 / r;
 
-    if (t->x.lim - t->x.beg > height) {
+    if (r > 2.0 * (t->x.lim - t->x.beg)) {
       /* Far enough away to use quad as point. */
       /* Do it and set accel. */
       accel = f2_add(accel, f2_mult(phys_get_force(f2_minus(p.pos, t->get_centroid())), t->get_num_particles()));
@@ -161,6 +161,7 @@ bool QTnode::insert(Particle p)
     if (children.size() == 0) {
       /* If we are at a leaf node. Just insert. */
       particles.push_back(p);
+      psize++;
       inserted = true;
     } else {
       /* Otherwise, see if you can store in a child. */
@@ -200,7 +201,7 @@ void QTnode::recalc_num_particles()
   int i;
 
   if (children.empty()) {
-    num_particles = particles.size();
+    num_particles = psize;
   } else {
     num_particles = 0;
 
@@ -221,6 +222,8 @@ QTnode::QTnode(QTnode *parent, double xbeg, double ybeg, double step, int height
 
   this->num_particles = 0;
   this->height = height;
+
+  this->psize = 0;
 }
 
 QTnode *init_tree(int height, QTnode *parent)

@@ -1,8 +1,8 @@
 .SUFFIXES: .cpp .hpp .o
 
 # Set up the environment
-CC=clang++
-CFLAGS=
+CC=g++
+CFLAGS=-O3
 LDFLAGS=-lcairo -lm -lX11
 INCLUDE=-I/usr/include/cairo
 
@@ -20,7 +20,7 @@ clean:
 	rm -rf $(OBJECTS) $(EXECUTABLE)
 
 $(EXECUTABLE): $(OBJECTS)
-	$(CC) $(LDFLAGS) $(INCLUDE) $(OBJECTS) -o $@
+	$(CC) $(CFLAGS) $(LDFLAGS) $(INCLUDE) $(OBJECTS) -o $@
 	rm -rf $(OBJECTS)
 
 .cpp.o:
