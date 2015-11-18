@@ -137,7 +137,7 @@ Particle phys_gen_particle()
   Particle p;
 
   p.pos = (f2) {drand48(), drand48()};
-  p.vel = (f2) {0.0, 0.0};
+  p.vel = (f2) {drand48() - 0.5, drand48() - 0.5};
   p.accel = (f2) {0.0, 0.0};
 
   return p;
