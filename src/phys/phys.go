@@ -25,6 +25,10 @@ func (a *f2) mult(s float64) f2 {
     return f2{a.x * s, a.y * s}
 }
 
+func (a *f2) div(s float64) f2 {
+    return f2{a.x / s, a.y / s}
+}
+
 type particle struct {
     pos f2
     vel f2
@@ -51,6 +55,11 @@ func getForce(p1, p2 particle, G, RMIN float64) f2 {
         return f2{0.0, 0.0}
     }
     return r.mult((p1.mass*p2.mass*-G) / (r_norm*r_norm*r_norm))
+}
+
+func getAcceleration(p1, p2 particle, G, RMIN float64) f2 {
+    force := getForce(p1, p2, G, RMIN)
+    return force.div(p1.mass)
 }
 
 func (p *particle) bounce() particle {
@@ -108,7 +117,7 @@ func (system *NaiveSystem) StepSystem() {
             if (i == j) {
                 continue
             }
-            system.particles[i].accel.add(getForce(system.particles[i], system.particles[j], system.G, system.RMIN))
+            system.particles[i].accel.add(getAcceleration(system.particles[i], system.particles[j], system.G, system.RMIN))
         }
     }
     for i := 0; i < len(system.particles); i++ {
