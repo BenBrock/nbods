@@ -2,6 +2,7 @@ package phys
 
 import "math"
 import "math/rand"
+import "../render"
 
 type f2 struct {
     x, y float64
@@ -11,20 +12,17 @@ func (a *f2) norm() float64 {
     return math.Hypot(a.x, a.y)
 }
 
-func (a *f2) add(b *f2) *f2 {
+func (a *f2) add(b f2) {
     a.x += b.x
     a.y += b.y
-    return a
 }
 
-func minus(a *f2, b *f2) f2 {
+func minus(a, b f2) f2 {
     return f2{a.x - b.x, a.y - b.y}
 }
 
-func (a *f2) mult(s float64) *f2 {
-    a.x *= s
-    a.y *= s
-    return a
+func (a *f2) mult(s float64) f2 {
+    return f2{a.x * s, a.y * s}
 }
 
 type particle struct {
@@ -42,20 +40,20 @@ func RandomParticle() particle {
     return p
 }
 
-func getDistance(p1, p2 *particle) f2 {
-    return minus(&p1.pos, &p2.pos)
+func getDistance(p1, p2 particle) f2 {
+    return minus(p1.pos, p2.pos)
 }
 
-func getForce(p1, p2 *particle, G, RMIN float64) *f2 {
+func getForce(p1, p2 particle, G, RMIN float64) f2 {
     r := getDistance(p1, p2)
     r_norm := r.norm()
     if (r_norm < RMIN) {
-        return &f2{0.0, 0.0}
+        return f2{0.0, 0.0}
     }
-    return r.mult(-G / (r_norm*r_norm*r_norm))
+    return r.mult((p1.mass*p2.mass*-G) / (r_norm*r_norm*r_norm))
 }
 
-func (p *particle) bounce() *particle {
+func (p *particle) bounce() particle {
     if p.pos.x < 0.0 {
         p.pos.x *= -1;
         p.vel.x *= -1;
@@ -70,18 +68,21 @@ func (p *particle) bounce() *particle {
         p.pos.y = 2.0 - p.pos.y;
         p.vel.y *= -1;
     }
-    return p
+    return *p
 }
 
 type NaiveSystem struct {
     particles []particle
+    rs render.RenderSystem
 
     G float64
     DT float64
     RMIN float64
+
+    dir string
 }
 
-func RandomNaiveSystem(n uint) NaiveSystem {
+func RandomNaiveSystem(n uint, G, DT, RMIN float64, dir string) NaiveSystem {
     var system NaiveSystem
     system.particles = make([]particle, n)
 
@@ -89,9 +90,13 @@ func RandomNaiveSystem(n uint) NaiveSystem {
         system.particles[i] = RandomParticle()
     }
 
-    system.G = 1.0e-3
-    system.DT = 1.0e-4
-    system.RMIN = 1.0e-2
+    system.G = G
+    system.DT = DT
+    system.RMIN = RMIN
+
+    system.dir = dir
+
+    system.rs = render.NewRenderSystem(1024, 1024, system.dir)
 
     return system
 }
@@ -103,12 +108,29 @@ func (system *NaiveSystem) StepSystem() {
             if (i == j) {
                 continue
             }
-            system.particles[i].accel.add(getForce(&system.particles[i], &system.particles[j], system.G, system.RMIN))
+            system.particles[i].accel.add(getForce(system.particles[i], system.particles[j], system.G, system.RMIN))
         }
     }
     for i := 0; i < len(system.particles); i++ {
         system.particles[i].vel.add(system.particles[i].accel.mult(system.DT))
         system.particles[i].pos.add(system.particles[i].vel.mult(system.DT))
-        system.particles[i].bounce()
+        system.particles[i] = system.particles[i].bounce()
     }
+}
+
+func (system *NaiveSystem) RenderImage() {
+    system.rs.ClearImage()
+    for i := 0; i < len(system.particles); i++ {
+        v := system.particles[i].vel.norm()
+        var r, b float64
+        if v >= 0.4 {
+            r = 1.0
+            b = 0.0
+        } else if v < 0.5 {
+            b = 1.0
+            r = 0.0
+        }
+        system.rs.AddPoint(system.particles[i].pos.x, system.particles[i].pos.y, r, b)
+    }
+    system.rs.WriteImage()
 }
