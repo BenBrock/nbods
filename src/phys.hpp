@@ -1,5 +1,6 @@
 #include "vec.hpp"
 #include <omp.h>
+#include <string>
 
 typedef struct {
   f2 pos;
@@ -10,7 +11,7 @@ typedef struct {
 extern Particle *particles;
 extern int N;
 
-void phys_init(int n);
+void phys_init(int n, std::string fname);
 void phys_step(double dt);
 void phys_print();
 f2 phys_get_force(f2 r);

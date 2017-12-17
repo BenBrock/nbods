@@ -4,6 +4,9 @@
 #include <assert.h>
 #include "vec.hpp"
 #include "phys.hpp"
+#include <string>
+#include <sstream>
+#include <fstream>
 
 /* gravitational constant */
 #define G 1.0e-3
@@ -35,15 +38,42 @@ double get_energy()
   return E;
 }
 
-void phys_init(int n)
+void phys_init(int n, std::string fname = "")
 {
   N = n;
   particles = (Particle *)calloc(N, sizeof(Particle));
-  for (int i = 0; i < N; i++) {
-    particles[i].pos.x = (double) rand() / RAND_MAX;
-    particles[i].pos.y = (double) rand() / RAND_MAX;
-    particles[i].vel.x = (double) rand() / RAND_MAX - 0.5;
-    particles[i].vel.y = (double) rand() / RAND_MAX - 0.5;
+  if (fname == "") {
+    for (int i = 0; i < N; i++) {
+      particles[i].pos.x = (double) rand() / RAND_MAX;
+      particles[i].pos.y = (double) rand() / RAND_MAX;
+      particles[i].vel.x = (double) rand() / RAND_MAX - 0.5;
+      particles[i].vel.y = (double) rand() / RAND_MAX - 0.5;
+    }
+  } else {
+    std::ifstream fin(fname);
+    std::string buf;
+    int i = 0;
+    while (std::getline(fin, buf)) {
+      std::istringstream ss(buf);
+      double x, y;
+      ss >> x >> y;
+      particles[i].pos.y = x;
+      particles[i].pos.x = y;
+      particles[i].vel.x = (double) rand() / RAND_MAX - 0.5;
+      particles[i].vel.y = (double) rand() / RAND_MAX - 0.5;
+      i++;
+      if (i > n) {
+        break;
+      }
+    }
+    while (i < n) {
+      particles[i].pos.x = (double) rand() / RAND_MAX;
+      particles[i].pos.y = (double) rand() / RAND_MAX;
+      particles[i].vel.x = (double) rand() / RAND_MAX - 0.5;
+      particles[i].vel.y = (double) rand() / RAND_MAX - 0.5;
+      i++;
+    }
+    fin.close();
   }
 #if RENORMALIZATION_ENABLE
   E0 = get_energy();
